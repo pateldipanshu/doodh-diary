@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Doodh Diary – Milk Record Tracker</title>
+<style>
+:root{--bg:#f3f7fa;--card:#fff;--ink:#14233a;--mute:#5b697d;--line:#d8e1ea;--brand:#1d4e89;--onbrand:#fff;--fat:#0b8578;--snf:#b9740c;--bad:#b42318;--badbg:#fdecea;--ok:#147048;--okbg:#e5f4ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0e1724;--card:#16233a;--ink:#e8eef6;--mute:#9db0c7;--line:#2a3b57;--brand:#6aa6ec;--onbrand:#0e1724;--fat:#3cc7b8;--snf:#f0b24d;--bad:#ff8a7e;--badbg:#3b1d1d;--ok:#6fd6a0;--okbg:#14301f}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0e1724;--card:#16233a;--ink:#e8eef6;--mute:#9db0c7;--line:#2a3b57;--brand:#6aa6ec;--onbrand:#0e1724;--fat:#3cc7b8;--snf:#f0b24d;--bad:#ff8a7e;--badbg:#3b1d1d;--ok:#6fd6a0;--okbg:#14301f}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Mukta",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.4}
+main{max-width:760px;margin:0 auto;padding:16px 14px 48px}
+h1{font-size:28px;font-weight:800;margin:4px 0 2px;letter-spacing:-.01em}
+.sub{color:var(--mute);margin:0 0 16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+h2{font-size:19px;font-weight:800;margin:0 0 12px}
+label{display:block;font-size:14px;color:var(--mute);margin-bottom:3px}
+input,select{width:100%;font:inherit;font-size:18px;padding:10px 11px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--brand);outline-offset:1px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+button{font:inherit;font-weight:600;cursor:pointer;border-radius:9px;border:1.5px solid var(--brand);background:transparent;color:var(--brand);padding:8px 14px}
+button.primary{background:var(--brand);color:var(--onbrand);width:100%;font-size:19px;padding:12px;margin-top:12px}
+.seg{display:flex;gap:8px}
+.seg button{flex:1;padding:10px}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--onbrand)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{border-left:4px solid var(--line);padding:2px 0 2px 10px}
+.stat b{display:block;font-size:24px;font-weight:800;line-height:1.15}
+.stat span{font-size:13px;color:var(--mute)}
+.stat.f{border-color:var(--fat)}.stat.s{border-color:var(--snf)}.stat.m{border-color:var(--brand)}
+.msg{border-radius:10px;padding:10px 12px;margin-top:10px;font-size:16px}
+.msg.bad{background:var(--badbg);color:var(--bad)}
+.msg.ok{background:var(--okbg);color:var(--ok)}
+.msg.info{background:var(--bg);color:var(--mute)}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px;min-width:520px}
+th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-weight:600;color:var(--mute);font-size:13px}
+td.low{color:var(--bad);font-weight:700}
+.legend{display:flex;gap:16px;font-size:14px;color:var(--mute);margin-top:6px}
+.legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.del{padding:3px 9px;font-size:13px;border-color:var(--line);color:var(--mute)}
+.del[data-armed="1"]{border-color:var(--bad);color:var(--bad)}
+.empty{color:var(--mute);padding:8px 0}
+textarea{width:100%;font:inherit;font-size:14px;padding:10px;border:1.5px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);min-height:90px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.row button{flex:1}
+svg text{fill:var(--mute);font-size:11px;font-family:inherit}
+.authbox{max-width:420px;margin:0 auto;padding:28px 16px 48px}.authbox label{margin-top:10px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:16px;z-index:20;max-width:90%}
+.code{font-size:26px;font-weight:800;letter-spacing:.18em}
+@media (max-width:480px){.stats{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div id="auth" hidden><div class="authbox">
+<h1>Doodh Diary / दूध डायरी</h1>
+<p class="sub">One shared milk diary for your whole family.</p>
+<div class="seg" id="atab"><button type="button" data-v="login" aria-pressed="true">Log in</button><button type="button" data-v="reg" aria-pressed="false">Create account</button></div>
+<div id="regf" hidden><label for="an">Your name</label><input id="an" autocomplete="name" maxlength="40"></div>
+<label for="ap">Mobile number</label><input id="ap" type="tel" inputmode="numeric" autocomplete="username">
+<label for="aw">Password</label><input id="aw" type="password" autocomplete="current-password">
+<div id="regf2" hidden><label for="fm">Family diary</label><select id="fm"><option value="new">Start a new family diary</option><option value="join">Join my family with a code</option></select>
+<div id="fnw"><label for="fn">Family name</label><input id="fn" placeholder="For example: Patel family" maxlength="50"></div>
+<div id="fjw" hidden><label for="fc">Family code</label><input id="fc" placeholder="6 letters from a family member" autocapitalize="characters" maxlength="6"></div></div>
+<div id="amsg" class="msg bad" hidden></div>
+<button class="primary" id="ago" type="button">Log in</button>
+</div></div>
+<div id="toast" role="status" hidden></div>
+<main hidden>
+<h1>Doodh Diary / दूध डायरी</h1>
+<p class="sub">Enter your dairy slip each shift. Everyone in your family sees the same records.</p>
+
+<section aria-labelledby="h-add">
+<h2 id="h-add">Add slip / पर्ची जोड़ें</h2>
+<div class="grid">
+<div><label for="date">Date / तारीख</label><input type="date" id="date"></div>
+<div><label>Shift / पाली</label>
+<div class="seg" id="shift"><button type="button" data-v="M" aria-pressed="true">Morning</button><button type="button" data-v="E" aria-pressed="false">Evening</button></div></div>
+</div>
+<div class="grid3" style="margin-top:10px">
+<div><label for="qty">Litres / मात्रा</label><input id="qty" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="fat">Fat / फैट</label><input id="fat" type="number" inputmode="decimal" step="0.1" min="0"></div>
+<div><label for="snf">SNF</label><input id="snf" type="number" inputmode="decimal" step="0.1" min="0"></div>
+<div><label for="rate">Rate ₹/litre</label><input id="rate" type="number" inputmode="decimal" step="0.01" min="0"></div>
+<div><label for="amt">Amount ₹ / रकम</label><input id="amt" type="number" inputmode="decimal" step="0.01" min="0"></div>
+</div>
+<div id="formmsg" class="msg info" hidden></div>
+<button class="primary" id="save" type="button">Save slip</button>
+</section>
+
+<section aria-labelledby="h-sum">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px">
+<h2 id="h-sum" style="margin:0">Month summary</h2>
+<input type="month" id="month" style="width:auto" aria-label="Month">
+</div>
+<div class="stats" id="stats"></div>
+<div id="alerts"></div>
+</section>
+
+<section aria-labelledby="h-pay">
+<h2 id="h-pay">Expected vs paid / मिलान</h2>
+<label for="paid">Amount the dairy actually paid for this month (₹)</label>
+<input id="paid" type="number" inputmode="decimal" step="0.01" min="0">
+<div id="recon"></div>
+</section>
+
+<section aria-labelledby="h-exp">
+<h2 id="h-exp">Expenses and profit / खर्च और मुनाफ़ा</h2>
+<div class="grid3">
+<div><label for="ed">Date</label><input type="date" id="ed"></div>
+<div><label for="ec">Type</label><select id="ec"><option value="Feed">Feed / चारा</option><option value="Medicine">Medicine / दवा</option><option value="Labour">Labour / मज़दूरी</option><option value="Other">Other / अन्य</option></select></div>
+<div><label for="ea">Amount ₹</label><input id="ea" type="number" inputmode="decimal" step="0.01" min="0"></div>
+</div>
+<div id="expmsg" class="msg info" hidden></div>
+<button class="primary" id="addexp" type="button">Add expense</button>
+<div id="profit"></div>
+<div class="scroll" id="explist" style="margin-top:10px"></div>
+</section>
+
+<section aria-labelledby="h-tr">
+<h2 id="h-tr">Fat and SNF trend</h2>
+<div id="chart"></div>
+<div class="legend"><span><i style="background:var(--fat)"></i>Fat</span><span><i style="background:var(--snf)"></i>SNF</span></div>
+</section>
+
+<section aria-labelledby="h-list">
+<h2 id="h-list">All slips this month</h2>
+<div class="scroll" id="list"></div>
+</section>
+<section aria-labelledby="h-fam">
+<h2 id="h-fam">Your family / परिवार</h2>
+<div id="famb"></div>
+<button type="button" id="logout" style="margin-top:10px">Log out</button>
+</section>
+
+<section aria-labelledby="h-bk">
+<h2 id="h-bk">Backup and share / बैकअप</h2>
+<p class="sub" style="margin:0 0 8px">Your records are saved on the server for the whole family. To bring in records from the old offline version, paste its backup here and tap Restore.</p>
+<textarea id="bk" aria-label="Backup or summary text" placeholder="Backup or summary text appears here"></textarea>
+<div class="row"><button type="button" id="cpbk">Copy backup</button><button type="button" id="rsbk">Restore from text</button><button type="button" id="cpsum">Copy month summary</button></div>
+<div id="bkmsg" class="msg info" hidden></div>
+</section>
+</main>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var entries=[],paid={},exps=[],shift="M",amtDirty=false;
+var TOKEN="",paidT;try{TOKEN=localStorage.getItem("dd_token")||""}catch(e){}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function toast(t){var x=$("toast");x.textContent=t;x.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){x.hidden=true},3500)}
+function api(method,path,body){return fetch("/api"+path,{method:method,headers:{"Content-Type":"application/json","Authorization":"Bearer "+TOKEN},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok){if(r.status===401&&path.indexOf("/auth")!==0)logout();var er=new Error(j.error||"Something went wrong. Try again.");er.status=r.status;throw er}return j})},function(){throw new Error("Cannot reach the server. Check your internet.")})}
+function load(){return api("GET","/data").then(function(d){entries=d.entries;exps=d.exps;paid=d.paid;famInfo(d.family)})}
+function savePaid(m,v){clearTimeout(paidT);paidT=setTimeout(function(){api("PUT","/paid/"+m,{amount:v===""?null:Number(v)}).catch(function(er){toast(er.message)})},600)}
+function famInfo(f){$("famb").innerHTML="<p style=\"margin:0 0 6px\">Family: <b>"+esc(f.name)+"</b></p><p style=\"margin:0 0 6px\">Family code to share with relatives:</p><div class=\"code\">"+esc(f.code)+"</div><p style=\"margin:8px 0 0;color:var(--mute)\">Members: "+f.members.map(esc).join(", ")+". Anyone in the family can add and see all slips and expenses.</p>"}
+function store(){}
+function today(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function inr(n){return "₹"+Number(n).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function avg(a,k){return a.length?a.reduce(function(s,x){return s+x[k]},0)/a.length:0}
+function sorted(){return entries.slice().sort(function(a,b){return a.date===b.date?(a.shift<b.shift?1:-1):(a.date<b.date?-1:1)})}
+/* flag a slip if fat or rate is clearly below the average of the previous 10 slips */
+function flags(){var all=sorted(),out={};all.forEach(function(e,i){var prev=all.slice(Math.max(0,i-10),i);if(prev.length<3)return;var f=avg(prev,"fat"),r=avg(prev,"rate"),s=avg(prev,"snf"),w=[];
+if(e.fat<f-0.3)w.push("fat "+e.fat.toFixed(1)+" is below your usual "+f.toFixed(1));
+if(e.snf<s-0.3)w.push("SNF "+e.snf.toFixed(1)+" is below your usual "+s.toFixed(1));
+if(e.rate<r-1)w.push("rate ₹"+e.rate.toFixed(2)+" is below your usual ₹"+r.toFixed(2));
+if(w.length)out[e.id]=w})
+return out}
+function render(){
+var m=$("month").value,all=sorted(),fl=flags();
+var mine=all.filter(function(e){return e.date.slice(0,7)===m});
+var qty=mine.reduce(function(s,e){return s+e.qty},0),amt=mine.reduce(function(s,e){return s+e.amt},0);
+var wf=qty?mine.reduce(function(s,e){return s+e.fat*e.qty},0)/qty:0,ws=qty?mine.reduce(function(s,e){return s+e.snf*e.qty},0)/qty:0;
+$("stats").innerHTML='<div class="stat m"><b>'+qty.toFixed(1)+' L</b><span>Total milk</span></div><div class="stat m"><b>'+inr(amt)+'</b><span>Expected amount</span></div><div class="stat m"><b>'+(qty?inr(amt/qty):"–")+'</b><span>Average rate per litre</span></div><div class="stat f"><b>'+(qty?wf.toFixed(2):"–")+'</b><span>Average fat</span></div><div class="stat s"><b>'+(qty?ws.toFixed(2):"–")+'</b><span>Average SNF</span></div><div class="stat"><b>'+mine.length+'</b><span>Slips entered</span></div>';
+var bad=mine.filter(function(e){return fl[e.id]}).slice(-3).reverse(),h="";
+if(bad.length){h=bad.map(function(e){return '<div class="msg bad"><b>'+e.date.split("-").reverse().join("/")+" "+(e.shift==="M"?"morning":"evening")+":</b> "+fl[e.id].join("; ")+". Ask the dairy to check the machine reading.</div>"}).join("")}
+else if(mine.length>=4){h='<div class="msg ok">No unusual drop in fat, SNF or rate this month.</div>'}
+else{h='<div class="msg info">Alerts start after you have entered a few slips.</div>'}
+$("alerts").innerHTML=h;
+var p=paid[m];$("paid").value=p===undefined?"":p;
+if(p===undefined||p===""){$("recon").innerHTML='<div class="msg info">Enter what the dairy paid to compare it with '+inr(amt)+'.</div>'}
+else{var d=amt-Number(p);$("recon").innerHTML=Math.abs(d)<0.5?'<div class="msg ok">Matches. You were paid '+inr(p)+' as expected.</div>':d>0?'<div class="msg bad">Dairy owes you <b>'+inr(d)+'</b>. Expected '+inr(amt)+', paid '+inr(p)+'.</div>':'<div class="msg ok">You were paid '+inr(-d)+' more than your slips add up to.</div>'}
+chart(mine);money(mine,amt);
+if(!mine.length){$("list").innerHTML='<div class="empty">No slips for this month yet. Add your first one above.</div>'}
+else{$("list").innerHTML="<table><thead><tr><th>Date</th><th>Shift</th><th>Litres</th><th>Fat</th><th>SNF</th><th>Rate</th><th>Amount</th><th>By</th><th></th></tr></thead><tbody>"+mine.slice().reverse().map(function(e){var c=fl[e.id]?' class="low"':"";return "<tr><td>"+e.date.slice(8)+"/"+e.date.slice(5,7)+"</td><td>"+(e.shift==="M"?"Morning":"Evening")+"</td><td>"+e.qty.toFixed(1)+"</td><td"+c+">"+e.fat.toFixed(1)+"</td><td"+c+">"+e.snf.toFixed(1)+"</td><td"+c+">"+e.rate.toFixed(2)+"</td><td>"+e.amt.toFixed(2)+"</td><td>"+esc(e.by||"")+'</td><td><button class="del" data-id="'+e.id+'">Delete</button></td></tr>'}).join("")+"</tbody></table>"}
+}
+function chart(a){
+if(a.length<2){$("chart").innerHTML='<div class="empty">Add at least two slips to see the trend.</div>';return}
+var W=600,H=200,L=34,R=8,T=10,B=22,v=[];a.forEach(function(e){v.push(e.fat,e.snf)});
+var lo=Math.floor(Math.min.apply(null,v)-0.5),hi=Math.ceil(Math.max.apply(null,v)+0.5);
+function x(i){return L+i*(W-L-R)/(a.length-1)}function y(n){return T+(hi-n)*(H-T-B)/(hi-lo)}
+var g="";for(var t=lo;t<=hi;t++){g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(t)+'" y2="'+y(t)+'" stroke="var(--line)"/><text x="'+(L-6)+'" y="'+(y(t)+4)+'" text-anchor="end">'+t+"</text>"}
+function line(k,c){return '<polyline fill="none" stroke="'+c+'" stroke-width="2.5" stroke-linejoin="round" points="'+a.map(function(e,i){return x(i)+","+y(e[k])}).join(" ")+'"/>'+a.map(function(e,i){return '<circle cx="'+x(i)+'" cy="'+y(e[k])+'" r="3" fill="'+c+'"/>'}).join("")}
+var first=a[0].date.slice(8)+"/"+a[0].date.slice(5,7),last=a[a.length-1].date.slice(8)+"/"+a[a.length-1].date.slice(5,7);
+$("chart").innerHTML='<svg viewBox="0 0 '+W+" "+H+'" width="100%" role="img" aria-label="Fat and SNF trend for the month">'+g+line("snf","var(--snf)")+line("fat","var(--fat)")+'<text x="'+L+'" y="'+(H-4)+'">'+first+'</text><text x="'+(W-R)+'" y="'+(H-4)+'" text-anchor="end">'+last+"</text></svg>"}
+function money(mine,inc){
+var m=$("month").value,ex=exps.filter(function(e){return e.date.slice(0,7)===m}).sort(function(a,b){return a.date<b.date?1:-1});
+var tot=ex.reduce(function(s,e){return s+e.amt},0),q=mine.reduce(function(s,e){return s+e.qty},0),pr=inc-tot,by={};
+ex.forEach(function(e){by[e.cat]=(by[e.cat]||0)+e.amt});
+var parts=Object.keys(by).map(function(k){return k+" "+inr(by[k])}).join(", ");
+$("profit").innerHTML='<div class="stats" style="margin-top:14px"><div class="stat m"><b>'+inr(inc)+'</b><span>Milk income</span></div><div class="stat m"><b>'+inr(tot)+'</b><span>Expenses</span></div><div class="stat"><b style="color:'+(pr<0?"var(--bad)":"var(--ok)")+'">'+inr(pr)+'</b><span>Profit this month</span></div></div>'+(q?'<div class="msg info">Cost per litre '+inr(tot/q)+'. Profit per litre '+inr(pr/q)+'.'+(parts?" Spent on: "+parts+".":"")+'</div>':"")+(pr<0&&tot>0?'<div class="msg bad">Expenses are higher than milk income this month.</div>':"");
+$("explist").innerHTML=ex.length?'<table style="min-width:360px"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th></th></tr></thead><tbody>'+ex.map(function(e){return "<tr><td>"+e.date.slice(8)+"/"+e.date.slice(5,7)+"</td><td>"+e.cat+"</td><td>"+e.amt.toFixed(2)+'</td><td><button class="del" data-eid="'+e.id+'">Delete</button></td></tr>'}).join("")+"</tbody></table>":'<div class="empty">No expenses this month.</div>'}
+function em(t,c){var e=$("expmsg");e.hidden=!t;e.className="msg "+(c||"info");e.textContent=t||""}
+$("addexp").addEventListener("click",function(){var d=$("ed").value,a=parseFloat($("ea").value);
+if(!d)return em("Choose the date.","bad");if(!(a>0))return em("Enter the amount spent.","bad");
+api("POST","/expenses",{date:d,cat:$("ec").value,amt:a}).then(function(e){exps.push(e);$("ea").value="";$("month").value=d.slice(0,7);em("Added "+inr(a)+" for "+e.cat+".","ok");render()}).catch(function(er){em(er.message,"bad")})});
+$("explist").addEventListener("click",function(ev){var b=ev.target.closest(".del");if(!b)return;
+if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Sure?";setTimeout(function(){b.dataset.armed="0";b.textContent="Delete"},3000);return}
+api("DELETE","/expenses/"+b.dataset.eid).then(function(){exps=exps.filter(function(e){return e.id!==b.dataset.eid});render()}).catch(function(er){toast(er.message)})});
+function bm(t,c){var e=$("bkmsg");e.hidden=!t;e.className="msg "+(c||"info");e.textContent=t||""}
+function put(t,ok){var b=$("bk");b.value=t;b.select();var fail=function(){bm("Text is ready above. Select it and copy it.","info")};try{navigator.clipboard.writeText(t).then(function(){bm(ok,"ok")},fail)}catch(e){fail()}}
+$("cpbk").addEventListener("click",function(){put(JSON.stringify({v:1,entries:entries,paid:paid,exps:exps}),"Backup copied. Paste it somewhere safe.")});
+$("rsbk").addEventListener("click",function(){var d;try{d=JSON.parse($("bk").value)}catch(e){return bm("Paste a backup into the box first.","bad")}
+if(!d||!Array.isArray(d.entries))return bm("This text is not a Doodh Diary backup.","bad");
+api("POST","/import",d).then(function(r){return load().then(function(){render();bm("Imported "+r.entries+" slips and "+r.exps+" expenses into your family diary. Existing records were kept.","ok")})}).catch(function(er){bm(er.message,"bad")})});
+$("cpsum").addEventListener("click",function(){var m=$("month").value,mine=sorted().filter(function(e){return e.date.slice(0,7)===m});
+if(!mine.length)return bm("No slips in this month to summarise.","bad");
+var q=mine.reduce(function(s,e){return s+e.qty},0),a=mine.reduce(function(s,e){return s+e.amt},0),f=mine.reduce(function(s,e){return s+e.fat*e.qty},0)/q,s2=mine.reduce(function(s,e){return s+e.snf*e.qty},0)/q;
+var x=exps.filter(function(e){return e.date.slice(0,7)===m}).reduce(function(s,e){return s+e.amt},0),p=paid[m];
+var t="Milk summary "+m+"\nTotal milk: "+q.toFixed(1)+" L\nAverage fat: "+f.toFixed(2)+", SNF: "+s2.toFixed(2)+"\nAverage rate: "+inr(a/q)+"/L\nExpected amount: "+inr(a)+(p!==undefined&&p!==""?"\nDairy paid: "+inr(p):"")+"\nExpenses: "+inr(x)+"\nProfit: "+inr(a-x);
+put(t,"Summary copied. Paste it in WhatsApp.")});
+function msg(t,c){var e=$("formmsg");e.hidden=!t;e.className="msg "+(c||"info");e.textContent=t||""}
+function recalc(){if(amtDirty)return;var q=parseFloat($("qty").value),r=parseFloat($("rate").value);if(q>0&&r>=0)$("amt").value=(q*r).toFixed(2)}
+$("qty").addEventListener("input",recalc);$("rate").addEventListener("input",recalc);
+$("amt").addEventListener("input",function(){amtDirty=$("amt").value!==""});
+$("shift").addEventListener("click",function(ev){var b=ev.target.closest("button");if(!b)return;shift=b.dataset.v;Array.prototype.forEach.call($("shift").children,function(x){x.setAttribute("aria-pressed",x===b?"true":"false")})});
+$("save").addEventListener("click",function(){
+var d=$("date").value,q=parseFloat($("qty").value),f=parseFloat($("fat").value),s=parseFloat($("snf").value),r=parseFloat($("rate").value),a=parseFloat($("amt").value);
+if(!d){return msg("Choose the date.","bad")}
+if(!(q>0)||isNaN(f)||isNaN(s)||isNaN(r)){return msg("Fill litres, fat, SNF and rate from your slip.","bad")}
+if(isNaN(a))a=q*r;
+if(entries.some(function(e){return e.date===d&&e.shift===shift})){return msg("A slip for this date and shift already exists. Delete it first to enter again.","bad")}
+api("POST","/entries",{date:d,shift:shift,qty:q,fat:f,snf:s,rate:r,amt:a}).then(function(e){entries.push(e);["qty","fat","snf","rate","amt"].forEach(function(i){$(i).value=""});amtDirty=false;$("month").value=d.slice(0,7);msg("Saved "+inr(a)+" for "+d.split("-").reverse().join("/")+" "+(shift==="M"?"morning":"evening")+".","ok");render()}).catch(function(er){msg(er.message,"bad")})});
+$("list").addEventListener("click",function(ev){var b=ev.target.closest(".del");if(!b)return;
+if(b.dataset.armed!=="1"){b.dataset.armed="1";b.textContent="Sure?";setTimeout(function(){b.dataset.armed="0";b.textContent="Delete"},3000);return}
+api("DELETE","/entries/"+b.dataset.id).then(function(){entries=entries.filter(function(e){return e.id!==b.dataset.id});render()}).catch(function(er){toast(er.message)})});
+$("paid").addEventListener("input",function(){var m=$("month").value,v=$("paid").value;if(v==="")delete paid[m];else paid[m]=v;savePaid(m,v);
+var amt=entries.filter(function(e){return e.date.slice(0,7)===m}).reduce(function(s,e){return s+e.amt},0);
+if(v===""){$("recon").innerHTML='<div class="msg info">Enter what the dairy paid to compare it with '+inr(amt)+".</div>"}else{var d=amt-Number(v);$("recon").innerHTML=Math.abs(d)<0.5?'<div class="msg ok">Matches. You were paid '+inr(v)+" as expected.</div>":d>0?'<div class="msg bad">Dairy owes you <b>'+inr(d)+"</b>. Expected "+inr(amt)+", paid "+inr(v)+".</div>":'<div class="msg ok">You were paid '+inr(-d)+" more than your slips add up to.</div>"}});
+$("month").addEventListener("change",render);
+$("date").value=today();$("ed").value=today();$("month").value=today().slice(0,7);
+var amode="login";
+function showAuth(){$("auth").hidden=false;document.querySelector("main").hidden=true}
+function hideAuth(){$("auth").hidden=true;document.querySelector("main").hidden=false}
+function logout(){TOKEN="";try{localStorage.removeItem("dd_token")}catch(e){}entries=[];exps=[];paid={};showAuth()}
+function am(t){var e=$("amsg");e.hidden=!t;e.textContent=t||""}
+function setMode(m){amode=m;Array.prototype.forEach.call($("atab").children,function(b){b.setAttribute("aria-pressed",b.dataset.v===m?"true":"false")});$("regf").hidden=m!=="reg";$("regf2").hidden=m!=="reg";$("ago").textContent=m==="reg"?"Create account":"Log in";am("")}
+function boot(){if(!TOKEN){showAuth();return}load().then(function(){hideAuth();render()}).catch(function(er){if(er.status!==401){showAuth();am(er.message)}})}
+$("atab").addEventListener("click",function(ev){var b=ev.target.closest("button");if(b)setMode(b.dataset.v)});
+$("fm").addEventListener("change",function(){$("fnw").hidden=$("fm").value!=="new";$("fjw").hidden=$("fm").value!=="join"});
+$("ago").addEventListener("click",function(){var body={phone:$("ap").value.trim(),password:$("aw").value},p="/auth/login";
+if(amode==="reg"){p="/auth/register";body.name=$("an").value.trim();if($("fm").value==="new")body.familyName=$("fn").value.trim();else body.familyCode=$("fc").value.trim()}
+$("ago").disabled=true;api("POST",p,body).then(function(r){TOKEN=r.token;try{localStorage.setItem("dd_token",TOKEN)}catch(e){}$("aw").value="";am("");boot()}).catch(function(er){am(er.message)}).then(function(){$("ago").disabled=false})});
+$("logout").addEventListener("click",logout);
+boot();
+})();
+</script>
+</body>
+</html>
